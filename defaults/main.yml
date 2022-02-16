@@ -1,0 +1,3 @@
+---
+tunnels_server_alive_interval: 30
+tunnels_server_alive_count_max: 3

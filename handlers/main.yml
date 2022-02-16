@@ -1,0 +1,38 @@
+---
+- name: supervisor restart tunnels
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is not defined
+  become: yes
+  supervisorctl: >
+    name=ssh_tunnel_{{ item.name }}
+    state=restarted
+  with_items: "{{ ssh_tunnels.supervisor }}"
+
+- name: supervisor remove tunnels
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is defined
+    - item.remove | bool
+  become: yes
+  supervisorctl: >
+    name=ssh_tunnel_{{ item.name }}
+    state=absent
+  with_items: "{{ ssh_tunnels.supervisor }}"
+
+- name: systemd reload
+  when: 
+    - ssh_tunnels.systemd is defined
+  become: yes
+  systemd:
+    daemon_reload: yes
+
+- name: systemd restart tunnels
+  when: 
+    - ssh_tunnels.systemd is defined
+    - item.remove is not defined
+  become: yes
+  systemd: >
+    name=ssh_tunnel_{{ item.name }}
+    state=restarted
+  with_items: "{{ ssh_tunnels.systemd }}"

@@ -1,0 +1,23 @@
+---
+- name: Stop SSH Tunnel Supervisor Process
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is defined
+    - item.remove | bool
+  notify: supervisor remove tunnels
+  become: yes
+  supervisorctl: >
+    name=ssh_tunnel_{{ item.name }}
+    state=stopped
+  with_items: "{{ ssh_tunnels.supervisor }}"
+
+- name: Remove SSH Tunnel Supervisor Configuration File
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is defined
+    - item.remove | bool
+  become: yes
+  file: >
+    path=/etc/supervisor/conf.d/ssh_tunnel_{{ item.name }}.conf
+    state=absent
+  with_items: "{{ ssh_tunnels.supervisor }}"

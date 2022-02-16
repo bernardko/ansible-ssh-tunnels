@@ -1,0 +1,31 @@
+---
+- name: Install system packages
+  become: yes
+  apt:
+    pkg: supervisor
+    state: present
+    update-cache: yes
+
+- name: Install SSH Tunnel Supervisor Configuration File
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is not defined
+  notify: supervisor restart tunnels
+  become: yes
+  template: >
+    src={{ item.config_template | default("supervisor/tunnel.conf.j2", true) }}
+    dest=/etc/supervisor/conf.d/ssh_tunnel_{{ item.name }}.conf
+    owner={{ item.user }}
+    group={{ item.group }}
+    mode=0644
+  with_items: "{{ ssh_tunnels.supervisor }}"
+
+- name: Install SSH Tunnel Supervisor Process
+  when: 
+    - ssh_tunnels.supervisor is defined
+    - item.remove is not defined
+  become: yes
+  supervisorctl: >
+    name=ssh_tunnel_{{ item.name }}
+    state=present
+  with_items: "{{ ssh_tunnels.supervisor }}"

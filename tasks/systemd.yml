@@ -1,0 +1,26 @@
+---
+- name: Install SSH Tunnel Systemd Configuration File
+  when: 
+    - ssh_tunnels.systemd is defined
+    - item.remove is not defined
+  notify: 
+    -  "systemd reload"
+    -  "systemd restart tunnels"
+  become: yes
+  template: >
+    src={{ item.config_template | default("systemd/tunnel.conf.j2", true) }}
+    dest=/etc/systemd/system/ssh_tunnel_{{ item.name }}.service
+    owner=root
+    group=root
+    mode=0644
+  with_items: "{{ ssh_tunnels.systemd }}"
+
+# - name: Start Tunnel Service
+#   when: 
+#     - ssh_tunnels.systemd is defined
+#     - item.remove is not defined
+#   systemd:
+#     name: ssh_tunnel_{{ item.name }}
+#     state: started
+#     enabled: yes
+#   with_items: "{{ ssh_tunnels.systemd }}"

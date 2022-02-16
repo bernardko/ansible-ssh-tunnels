@@ -1,0 +1,13 @@
+---
+- import_tasks: supervisor_cleanup.yml
+  when: ssh_tunnels.supervisor is defined
+  tags:
+    - clean
+- import_tasks: systemd_cleanup.yml
+  when: ssh_tunnels.systemd is defined
+  tags:
+    - clean
+- import_tasks: supervisor.yml
+  when: ssh_tunnels.supervisor is defined
+- import_tasks: systemd.yml
+  when: ssh_tunnels.systemd is defined

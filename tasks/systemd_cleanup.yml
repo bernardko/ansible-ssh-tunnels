@@ -1,0 +1,26 @@
+---
+# - name: Stop SSH Tunnel Systemd Service
+#   when: 
+#     - ssh_tunnels.systemd is defined
+#     - item.remove is defined
+#     - item.remove | bool
+#   notify: 
+#     - "systemd reload"
+#   become: yes
+#   systemd: >
+#     name=ssh_tunnel_{{ item.name }}
+#     state=stopped
+#   with_items: "{{ ssh_tunnels.systemd }}"
+
+- name: Remove SSH Tunnel Systemd Configuration File
+  when: 
+    - ssh_tunnels.systemd is defined
+    - item.remove is defined
+    - item.remove | bool
+  notify: 
+    - "systemd reload"
+  become: yes
+  file: >
+    path=/etc/systemd/system/ssh_tunnel_{{ item.name }}.service
+    state=absent
+  with_items: "{{ ssh_tunnels.systemd }}"

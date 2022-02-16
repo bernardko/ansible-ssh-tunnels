@@ -1,0 +1,14 @@
+[Unit]
+Description={{ item.name }}
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ item.user }}
+ExecStart=/usr/bin/ssh -o ServerAliveInterval={{ item.server_alive_interval|default(tunnels_server_alive_interval, true) }} -o ServerAliveCountMax={{ item.server_alive_count_max|default(tunnels_server_alive_count_max, true) }} -o ExitOnForwardFailure=yes {% if item.identity is defined and item.identity %}-i {{ item.identity }}{% endif %} -N{{ item.forward_mode }} {{ item.forward }} {{ item.host }} -p {{ item.port|default("22", true) }} 
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
